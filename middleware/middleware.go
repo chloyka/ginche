@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"github.com/chloyka/ginche/cache"
 	"github.com/gin-gonic/gin"
+	"net/http"
 )
 
 type writer struct {
@@ -37,17 +38,22 @@ func Serve(storage *cache.Cache, options *Options) gin.HandlerFunc {
 
 		if data, ok := storage.Get(key); ok {
 			entry := data.(*httpCacheItem)
-			ctx.JSON(entry.Status, entry.Data)
+			for k, h := range entry.Headers {
+				for _, v := range h {
+					ctx.Writer.Header().Add(k, v)
+				}
+			}
+			ctx.String(entry.Status, entry.Data.(string))
+			ctx.Abort()
 			return
 		}
 		w := &writer{body: &bytes.Buffer{}, ResponseWriter: ctx.Writer}
 		ctx.Writer = w
 		ctx.Next()
-
 		if options != nil && sliceContainsInt(options.ExcludeStatuses, ctx.Writer.Status()) {
 			return
 		}
-		storage.Set(&key, &httpCacheItem{Status: ctx.Writer.Status(), Data: w.body.String()})
+		storage.Set(&key, &httpCacheItem{Status: ctx.Writer.Status(), Data: w.body.String(), Headers: w.Header().Clone()})
 	}
 }
 
@@ -58,8 +64,9 @@ type Options struct {
 }
 
 type httpCacheItem struct {
-	Status int
-	Data   interface{}
+	Status  int
+	Headers http.Header
+	Data    interface{}
 }
 
 func sliceContainsInt(arr []int, ele int) bool {

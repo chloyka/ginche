@@ -44,6 +44,8 @@ func (s *MiddlewareSuite) TestServe() {
 	s.Equal(200, w.Code)
 	s.Equal(`{"message":"test get"}`, w.Body.String())
 	s.Equal(200, d.(*httpCacheItem).Status)
+	s.Equal("application/json; charset=utf-8", d.(*httpCacheItem).Headers.Get("Content-Type"))
+	s.Equal("application/json; charset=utf-8", w.Header().Get("Content-Type"))
 	s.Equal(`{"message":"test get"}`, d.(*httpCacheItem).Data)
 
 	// Second request, should return from cache
@@ -55,6 +57,7 @@ func (s *MiddlewareSuite) TestServe() {
 	s.Nil(d)
 	s.Equal(201, w.Code)
 	s.Equal(`{"message":"test post"}`, w.Body.String())
+
 }
 
 func TestServe(t *testing.T) {
