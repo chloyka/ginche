@@ -47,8 +47,19 @@ func (s *MiddlewareSuite) TestServe() {
 	s.Equal("application/json; charset=utf-8", d.(*httpCacheItem).Headers.Get("Content-Type"))
 	s.Equal("application/json; charset=utf-8", w.Header().Get("Content-Type"))
 	s.Equal(`{"message":"test get"}`, d.(*httpCacheItem).Data)
+	s.Equal(`MISS`, w.Header().Get("X-Cache"))
 
 	// Second request, should return from cache
+	w = httptest.NewRecorder()
+	req, _ = http.NewRequest("GET", "/test", nil)
+	router.ServeHTTP(w, req)
+	d, match = storage.Get("/testGET")
+	s.True(match)
+	s.Equal(200, w.Code)
+	s.Equal(`{"message":"test get"}`, w.Body.String())
+	s.Equal(`HIT`, w.Header().Get("X-Cache"))
+
+	// Should return miss cache because of POST method excluded
 	w = httptest.NewRecorder()
 	req, _ = http.NewRequest("POST", "/test", nil)
 	router.ServeHTTP(w, req)
@@ -57,7 +68,6 @@ func (s *MiddlewareSuite) TestServe() {
 	s.Nil(d)
 	s.Equal(201, w.Code)
 	s.Equal(`{"message":"test post"}`, w.Body.String())
-
 }
 
 func TestServe(t *testing.T) {
