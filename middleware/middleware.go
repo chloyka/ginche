@@ -43,6 +43,7 @@ func Serve(storage *cache.Cache, options *Options) gin.HandlerFunc {
 					ctx.Writer.Header().Add(k, v)
 				}
 			}
+			ctx.Writer.Header().Set("X-Cache", "HIT")
 			ctx.String(entry.Status, entry.Data.(string))
 			ctx.Abort()
 			return
@@ -50,6 +51,7 @@ func Serve(storage *cache.Cache, options *Options) gin.HandlerFunc {
 		w := &writer{body: &bytes.Buffer{}, ResponseWriter: ctx.Writer}
 		ctx.Writer = w
 		ctx.Next()
+		ctx.Writer.Header().Set("X-Cache", "MISS")
 		if options != nil && sliceContainsInt(options.ExcludeStatuses, ctx.Writer.Status()) {
 			return
 		}
