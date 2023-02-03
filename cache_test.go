@@ -1,4 +1,4 @@
-package cache
+package ginche
 
 import (
 	"github.com/stretchr/testify/suite"

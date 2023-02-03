@@ -1,8 +1,7 @@
-package middleware
+package ginche
 
 import (
 	"bytes"
-	"github.com/chloyka/ginche/cache"
 	"github.com/gin-gonic/gin"
 	"net/http"
 )
@@ -17,7 +16,7 @@ func (w *writer) Write(b []byte) (int, error) {
 	return w.ResponseWriter.Write(b)
 }
 
-func Serve(storage *cache.Cache, options *Options) gin.HandlerFunc {
+func Middleware(storage *Cache, options *Options) gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		var key string
 		if options != nil {

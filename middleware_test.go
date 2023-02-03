@@ -1,7 +1,6 @@
-package middleware
+package ginche
 
 import (
-	"github.com/chloyka/ginche/cache"
 	"github.com/gin-gonic/gin"
 	"github.com/stretchr/testify/suite"
 	"net/http"
@@ -15,7 +14,7 @@ type MiddlewareSuite struct {
 }
 
 func (s *MiddlewareSuite) TestServe() {
-	storage := cache.NewCache(time.Minute, nil)
+	storage := NewCache(time.Minute, nil)
 	options := &Options{
 		KeyFunc: func(c *gin.Context) string {
 			return c.Request.URL.Path + c.Request.Method
@@ -23,7 +22,7 @@ func (s *MiddlewareSuite) TestServe() {
 		ExcludeStatuses: []int{http.StatusNotFound},
 		ExcludeMethods:  []string{http.MethodPost},
 	}
-	middleware := Serve(storage, options)
+	middleware := Middleware(storage, options)
 
 	// Test caching
 	router := gin.New()
