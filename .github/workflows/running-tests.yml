@@ -1,5 +1,6 @@
 on: push
 name: Running tests
+runs-on: ubuntu-latest
 jobs:
   test:
     steps:
