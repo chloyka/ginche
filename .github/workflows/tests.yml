@@ -20,7 +20,7 @@ jobs:
       - name: run tests with coverage
         id: coverage_test
         run: |
-          go test . -cover | grep -Eo "coverage:\ [[:digit:]]{1,3}\.[[:digit:]]{1,3}\%" >> $GITHUB_OUTPUT
+          go test . -cover | grep -Eo [[:digit:]]{1,3}\.[[:digit:]]{1,3}\%"
       - name: run bench tests
         run: |
           go test -bench=. -benchmem
