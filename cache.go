@@ -11,6 +11,11 @@ type Cache struct {
 	cleanupInterval time.Duration
 }
 
+type CacheConfig struct {
+	TTL             *time.Duration
+	CleanupInterval *time.Duration
+}
+
 type Item struct {
 	value     interface{}
 	expiresAt time.Time
@@ -20,14 +25,20 @@ type ItemConfig struct {
 	TTL *time.Duration
 }
 
-func NewCache(ttl time.Duration, cleanupInterval *time.Duration) *Cache {
-	if cleanupInterval == nil {
-		in := time.Minute
-		cleanupInterval = &in
+func NewCache(config ...CacheConfig) *Cache {
+	in := time.Minute
+	cleanupInterval := &in
+	ttl := &in
+
+	if config != nil && config[0].CleanupInterval != nil {
+		cleanupInterval = config[0].CleanupInterval
+	}
+	if config != nil && ttl != config[0].TTL {
+		ttl = config[0].TTL
 	}
 	c := &Cache{
 		items:           &sync.Map{},
-		ttl:             ttl,
+		ttl:             *ttl,
 		cleanupInterval: *cleanupInterval,
 	}
 
@@ -61,9 +72,13 @@ func (c *Cache) Get(key string) (interface{}, bool) {
 	return item.value, true
 }
 
+func (c *Cache) FlushAll() {
+	c.items = &sync.Map{}
+}
+
 func (c *Cache) cleanup() {
 	for {
-		time.Sleep(time.Minute)
+		time.Sleep(c.cleanupInterval)
 		c.items.Range(func(k, v interface{}) bool {
 			if time.Now().After(v.(*Item).expiresAt) {
 				c.items.Delete(k)
