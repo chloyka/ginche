@@ -12,7 +12,11 @@ type CacheSuite struct {
 }
 
 func (s *CacheSuite) SetupTest() {
-	s.cache = NewCache()
+	minute := time.Minute
+	s.cache = NewCache(CacheConfig{
+		TTL:             &minute,
+		CleanupInterval: &minute,
+	})
 }
 
 func (s *CacheSuite) TearDownTest() {
