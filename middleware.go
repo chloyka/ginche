@@ -8,12 +8,21 @@ import (
 )
 
 const (
-	CTXSkipCacheKey   = "cache-key"
+	// CTXSkipCacheKey is the key used to skip the cache for a request
+	// ctx.Set(CTXSkipCacheKey, CTXSkipCacheValue)
+	CTXSkipCacheKey = "cache-key"
+	// CTXSkipCacheValue is the value used to skip the cache for a request
+	// ctx.Set(CTXSkipCacheKey, CTXSkipCacheValue)
 	CTXSkipCacheValue = ""
-	SkipCacheKeyValue
-	HeaderXCache     = "X-Cache"
-	HeaderXCacheHit  = "HIT"
+	// SkipCacheKeyValue is the value used to skip the cache for a request
+	SkipCacheKeyValue = ""
+	// HeaderXCache is the header key used to indicate the cache status
+	HeaderXCache = "X-Cache"
+	// HeaderXCacheHit is the header value used to indicate the cache status HIT
+	HeaderXCacheHit = "HIT"
+	// HeaderXCacheSkip is the header value used to indicate the cache status SKIP
 	HeaderXCacheSkip = "SKIP"
+	// HeaderXCacheMiss is the header value used to indicate the cache status MISS
 	HeaderXCacheMiss = "MISS"
 )
 
@@ -27,6 +36,9 @@ func (w *writer) Write(b []byte) (int, error) {
 	return w.ResponseWriter.Write(b)
 }
 
+// Middleware is the gin-gonic middleware function
+// it will cache the response if the request is not excluded
+// and if the response is not excluded
 func Middleware(storage *Cache, options *Options) gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		ctx.Writer.Header().Set(HeaderXCache, HeaderXCacheSkip)
@@ -78,6 +90,11 @@ func Middleware(storage *Cache, options *Options) gin.HandlerFunc {
 	}
 }
 
+// Options is the options for the middleware
+// KeyFunc is the function used to generate the cache key
+// ExcludeStatuses is the list of status codes to exclude from the cache
+// ExcludeMethods is the list of methods to exclude from the cache
+// ExcludePaths is the list of paths to exclude from the cache
 type Options struct {
 	KeyFunc         func(c *gin.Context) string
 	ExcludeStatuses []int

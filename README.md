@@ -1,4 +1,6 @@
-![Badge](https://github.com/chloyka/ginche/actions/workflows/tests.yml/badge.svg?event=push) ![Code coverage](https://img.shields.io/badge/coverage-100%25-green)
+![Badge](https://github.com/chloyka/ginche/actions/workflows/tests.yml/badge.svg?event=push)
+![Go Report Card](https://goreportcard.com/badge/github.com/chloyka/ginche)
+![Code coverage](https://img.shields.io/badge/coverage-100%25-green)
 # Ginche 
 <img src="https://github.com/chloyka/ginche-logo/raw/main/ginche.jpg" width="250px">
 
