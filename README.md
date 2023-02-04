@@ -1,5 +1,7 @@
 ![Code coverage](https://img.shields.io/badge/Coverage-100%25-green)
 # Ginche 
+<img src="https://github.com/chloyka/ginche-logo/raw/main/ginche.jpg" width="250px">
+
 ## What is Ginche?
 Ginche (gin(ca)che) is a simple gin-gonic middleware for caching HTTP responses in memory.
 It allows developers to cache Gin HTTP responses in memory, reducing the load on the server and improving response times. 
