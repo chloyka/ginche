@@ -3,12 +3,11 @@ package ginche
 import (
 	"fmt"
 	"testing"
-	"time"
 )
 
 func BenchmarkCache_Set(b *testing.B) {
 	// Create a new cache with a TTL of 1 minute
-	c := NewCache(time.Minute, nil)
+	c := NewCache()
 
 	// Run the Set method b.N times
 	for i := 0; i < b.N; i++ {
@@ -20,7 +19,7 @@ func BenchmarkCache_Set(b *testing.B) {
 
 func BenchmarkCache_Get(b *testing.B) {
 	// Create a new cache with a TTL of 1 minute
-	c := NewCache(time.Minute, nil)
+	c := NewCache()
 
 	// Add some items to the cache
 	for i := 0; i < b.N; i++ {
