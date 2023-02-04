@@ -20,7 +20,7 @@ jobs:
       - name: run tests with coverage
         id: coverage_test
         run: |
-          go test . -cover | grep -Eo "[[:digit:]]{1,3}\.[[:digit:]]{1,3}\%" | tr '\n' '' >> $GITHUB_OUTPUT
+          go test . -cover | grep -Eo "coverage:\ [[:digit:]]{1,3}\.[[:digit:]]{1,3}\%" | tr '\n' '' >> $GITHUB_OUTPUT
       - name: generate coverage badge
         uses: RubbaBoy/BYOB@v1.3.0
         with:
