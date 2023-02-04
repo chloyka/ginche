@@ -18,8 +18,17 @@ jobs:
         run: |
           go test .
       - name: run tests with coverage
+        id: coverage_test
         run: |
-          go test . -cover
+          go test . -cover | grep -Eo "[[:digit:]]{1,3}\.[[:digit:]]{1,3}\%" >> $GITHUB_OUTPUT
+      - name: generate coverage badge
+        uses: RubbaBoy/BYOB@v1.3.0
+        with:
+          NAME: coverage
+          LABEL: 'coverage'
+          STATUS: ${{ join(steps.run_tests.outputs.*, '') }}
+          COLOR: 00EEFF
+          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
       - name: run bench tests
         run: |
           go test -bench=. -benchmem
