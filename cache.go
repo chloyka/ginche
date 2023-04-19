@@ -5,10 +5,10 @@ import (
 	"time"
 )
 
-// Cache is a thread-safe in-memory cache.
+// InMemoryCache is a thread-safe in-memory cache.
 // It is safe to use concurrently.
 // It will automatically cleanup expired items.
-type Cache struct {
+type InMemoryCache struct {
 	items           *sync.Map
 	ttl             time.Duration
 	cleanupInterval time.Duration
@@ -34,9 +34,14 @@ type ItemConfig struct {
 	TTL *time.Duration
 }
 
-// NewCache creates a new cache with the given ttl and cleanupInterval.
+// NewCache Fallback to in-memory cache if no cache adapter is specified.
+func NewCache(config ...CacheConfig) CacheAdapter {
+	return NewInMemoryCache(config...)
+}
+
+// NewInMemoryCache creates a new cache with the given ttl and cleanupInterval.
 // If cleanupInterval or ttl is nil, it will default to 1 minute.
-func NewCache(config ...CacheConfig) *Cache {
+func NewInMemoryCache(config ...CacheConfig) CacheAdapter {
 	in := time.Minute
 	cleanupInterval := &in
 	ttl := &in
@@ -47,7 +52,7 @@ func NewCache(config ...CacheConfig) *Cache {
 	if config != nil && ttl != config[0].TTL {
 		ttl = config[0].TTL
 	}
-	c := &Cache{
+	c := &InMemoryCache{
 		items:           &sync.Map{},
 		ttl:             *ttl,
 		cleanupInterval: *cleanupInterval,
@@ -60,7 +65,7 @@ func NewCache(config ...CacheConfig) *Cache {
 // Set adds an item to the cache with the given key and value.
 // If config is not nil, it will use the TTL from the config.
 // Otherwise, it will use the cache's default TTL.
-func (c *Cache) Set(key *string, value interface{}, config ...*ItemConfig) {
+func (c *InMemoryCache) Set(key *string, value interface{}, config ...*ItemConfig) {
 	var expiresAt time.Time
 	if config != nil {
 		if config[0].TTL != nil {
@@ -75,7 +80,7 @@ func (c *Cache) Set(key *string, value interface{}, config ...*ItemConfig) {
 
 // Get returns the value of the item with the given key.
 // If the item does not exist or has expired, it will return nil and false.
-func (c *Cache) Get(key string) (interface{}, bool) {
+func (c *InMemoryCache) Get(key string) (interface{}, bool) {
 	itemInterface, ok := c.items.Load(key)
 	if !ok {
 		return nil, ok
@@ -89,13 +94,13 @@ func (c *Cache) Get(key string) (interface{}, bool) {
 }
 
 // FlushAll deletes all items from the cache.
-func (c *Cache) FlushAll() {
+func (c *InMemoryCache) FlushAll() {
 	c.items = &sync.Map{}
 }
 
 // cleanup deletes all expired items from the cache.
 // It is called every cleanupInterval.
-func (c *Cache) cleanup() {
+func (c *InMemoryCache) cleanup() {
 	for {
 		time.Sleep(c.cleanupInterval)
 		c.items.Range(func(k, v interface{}) bool {
@@ -110,6 +115,12 @@ func (c *Cache) cleanup() {
 // String Converts a string to a string pointer
 func String(str string) *string {
 	return &str
+}
+
+type CacheAdapter interface {
+	Set(key *string, value interface{}, config ...*ItemConfig)
+	Get(key string) (interface{}, bool)
+	FlushAll()
 }
 
 // TODO: Implement adapter interface for external storages

@@ -39,7 +39,7 @@ func (w *writer) Write(b []byte) (int, error) {
 // Middleware is the gin-gonic middleware function
 // it will cache the response if the request is not excluded
 // and if the response is not excluded
-func Middleware(storage *Cache, options *Options) gin.HandlerFunc {
+func Middleware(storage CacheAdapter, options *Options) gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		ctx.Writer.Header().Set(HeaderXCache, HeaderXCacheSkip)
 		cacheKey := ctx.Request.URL.Path

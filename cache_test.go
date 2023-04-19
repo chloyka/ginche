@@ -8,12 +8,12 @@ import (
 
 type CacheSuite struct {
 	suite.Suite
-	cache *Cache
+	cache CacheAdapter
 }
 
 func (s *CacheSuite) SetupTest() {
 	minute := time.Minute
-	s.cache = NewCache(CacheConfig{
+	s.cache = NewInMemoryCache(CacheConfig{
 		TTL:             &minute,
 		CleanupInterval: &minute,
 	})
@@ -67,14 +67,14 @@ func (s *CacheSuite) TestString() {
 
 func (s *CacheSuite) TestCleanup() {
 	testValue := "test"
-	s.cache.cleanupInterval = time.Millisecond * 100
+	s.cache.(*InMemoryCache).cleanupInterval = time.Millisecond * 100
 	s.cache.Set(&testValue, testValue, &ItemConfig{
-		TTL: &s.cache.cleanupInterval,
+		TTL: &s.cache.(*InMemoryCache).cleanupInterval,
 	})
 	d, ok := s.cache.Get(testValue)
 	s.True(ok)
 	s.Equal(testValue, d)
-	go s.cache.cleanup()
+	go s.cache.(*InMemoryCache).cleanup()
 	time.Sleep(time.Second)
 	d, ok = s.cache.Get(testValue)
 	s.False(ok)

@@ -10,7 +10,7 @@ import (
 
 type MiddlewareSuite struct {
 	suite.Suite
-	store      *Cache
+	store      CacheAdapter
 	httpServer *gin.Engine
 }
 
