@@ -2,6 +2,7 @@ package ginche
 
 import (
 	"context"
+	"encoding/json"
 	"github.com/redis/go-redis/v9"
 	"time"
 )
@@ -30,6 +31,10 @@ func NewRedisAdapter(redisConfig *redis.Options, config ...CacheConfig) CacheAda
 	}
 }
 
+type item struct {
+	Data interface{}
+}
+
 func (r *RedisAdapter) Set(key *string, value interface{}, config ...*ItemConfig) {
 	ttl := r.config.TTL
 	if config != nil && config[0].TTL != nil {
@@ -38,8 +43,9 @@ func (r *RedisAdapter) Set(key *string, value interface{}, config ...*ItemConfig
 	if config != nil {
 		ttl = config[0].TTL
 	}
+	val, _ := json.Marshal(item{Data: value})
 
-	r.conn.Set(context.Background(), *key, value, *ttl)
+	r.conn.Set(context.Background(), *key, string(val), *ttl)
 }
 
 func (r *RedisAdapter) Get(key string) (interface{}, bool) {
@@ -47,7 +53,13 @@ func (r *RedisAdapter) Get(key string) (interface{}, bool) {
 	if err != nil {
 		return nil, false
 	}
-	return value, true
+	var data item
+	err = json.Unmarshal([]byte(value), &data)
+	if err != nil {
+		return nil, false
+	}
+
+	return data.Data, true
 }
 
 func (r *RedisAdapter) FlushAll() {
