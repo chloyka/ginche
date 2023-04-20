@@ -1,6 +1,7 @@
 package ginche
 
 import (
+	"regexp"
 	"sync"
 	"time"
 )
@@ -78,6 +79,22 @@ func (c *InMemoryCache) Set(key *string, value interface{}, config ...*ItemConfi
 	c.items.Store(*key, &Item{value: value, expiresAt: expiresAt})
 }
 
+// Find returns all keys that match the given pattern.
+func (c *InMemoryCache) Find(pattern string) []string {
+	var keys []string
+	r := regexp.MustCompile(pattern)
+
+	c.items.Range(func(k, v interface{}) bool {
+		if v.(*Item).expiresAt.After(time.Now()) {
+			if r.MatchString(k.(string)) {
+				keys = append(keys, k.(string))
+			}
+		}
+		return true
+	})
+	return keys
+}
+
 // Get returns the value of the item with the given key.
 // If the item does not exist or has expired, it will return nil and false.
 func (c *InMemoryCache) Get(key string) (interface{}, bool) {
@@ -112,14 +129,16 @@ func (c *InMemoryCache) cleanup() {
 	}
 }
 
-// String Converts a string to a string pointer
-func String(str string) *string {
-	return &str
+// Delete deletes the item with the given key from the cache.
+func (c *InMemoryCache) Delete(key string) {
+	c.items.Delete(key)
 }
 
 type CacheAdapter interface {
 	Set(key *string, value interface{}, config ...*ItemConfig)
 	Get(key string) (interface{}, bool)
+	Delete(key string)
+	Find(pattern string) []string
 	FlushAll()
 }
 

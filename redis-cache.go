@@ -62,6 +62,17 @@ func (r *RedisAdapter) Get(key string) (interface{}, bool) {
 	return data.Data, true
 }
 
+func (r *RedisAdapter) Delete(key string) {
+	r.conn.Del(context.Background(), key)
+}
+
+func (r *RedisAdapter) Find(pattern string) []string {
+	keys := make([]string, 0)
+	keys, _ = r.conn.Keys(context.Background(), pattern).Result()
+
+	return keys
+}
+
 func (r *RedisAdapter) FlushAll() {
 	// No idea for now
 }
