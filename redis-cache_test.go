@@ -66,6 +66,7 @@ func (s *RedisSuite) TestWithMiddleware() {
 	d, _ := s.store.Get("/test")
 	s.Equal("{\"data\":\"test\"}", d.(map[string]interface{})["Data"])
 	s.Equal(w.Body.String(), "{\"data\":\"test\"}")
+	s.Equal(d.(map[string]interface{})["Data"], w.Body.String())
 }
 
 func TestRedisSuite(t *testing.T) {

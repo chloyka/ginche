@@ -2,6 +2,7 @@ package ginche
 
 import (
 	"bytes"
+	"encoding/json"
 	"github.com/gin-gonic/gin"
 	"net/http"
 	"strings"
@@ -62,7 +63,13 @@ func Middleware(storage CacheAdapter, options *Options) gin.HandlerFunc {
 		}
 
 		if data, ok := storage.Get(cacheKey); ok {
-			entry := data.(*httpCacheItem)
+			entry, ok := data.(*httpCacheItem)
+			if !ok {
+				b, _ := json.Marshal(data)
+				var item httpCacheItem
+				_ = json.Unmarshal(b, &item)
+				entry = &item
+			}
 			for k, h := range entry.Headers {
 				for _, v := range h {
 					ctx.Writer.Header().Add(k, v)
