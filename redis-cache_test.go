@@ -21,7 +21,7 @@ func (s *RedisSuite) SetupTest() {
 	mRedis := miniredis.NewMiniRedis()
 	mRedis.Start()
 	s.redis = mRedis
-	s.store = NewRedisAdapter(&redis.Options{
+	s.store, _ = NewRedisAdapter(&redis.Options{
 		Addr: mRedis.Addr(),
 	})
 }

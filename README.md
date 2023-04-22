@@ -86,9 +86,6 @@ router.Use(ginche.Middleware(store, &ginche.Options{
 ```
 
 ## TODO:
-1. Implement adapter interface for external storages
-2. Implement Redis storage
-3. Implement Memcached storage
-
+Implement Memcached storage
 
 Feel free to Open issues, requesting features or contributing
